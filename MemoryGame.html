@@ -40,8 +40,8 @@
 			html += "<tr>";
 			for(var j = 0; j < COLS; j++){
 				html += "<td class='border'><div onclick='imageClicked(this);' id='div" + ((i*COLS)+j);
-				html += "' class='transparent'><img src='" + images[(i*COLS)+j].src;
-				html += "' height='100' width='100'></div></td>";
+				html += "' class='transparent'><img id='" + i + j + "' src='" + images[(i*COLS)+j].src;
+				html += "' height='100' width='100' draggable='false'></div></td>";
 			}
 			html += "</tr>"
 		}
@@ -53,7 +53,60 @@
 	// TODO animate the image flipping
 	// TODO flip the images if they do not match
 	function imageClicked(div){
-		div.className = "visible"
+		// search if an image is selected
+		if(div.childNodes[0].isMatched){
+			alert("This image has already been matched with another. Please select another image.");
+			return;
+		}
+		
+		var image = 0;
+		for(var i = 0; i < ROWS; i++){
+			for(var j = 0; j < COLS; j++){
+				if(document.getElementById("" + i + j).isSelected){
+					image = document.getElementById("" + i + j);
+				}
+			}
+		}
+		
+		if(image != 0){
+			var child = div.childNodes;
+			if (image.src === child[0].src) {
+				div.className = "visible";
+				matched(div, image);
+			}
+			else {
+				div.className = "visible";
+				notMatched(div, image);
+			}
+		}
+		else{
+			div.className = "visible";
+			var anImage = document.getElementById("" + div.childNodes[0].id);
+			anImage.isSelected = true;
+		}
+	}
+	
+	function matched(div, image){
+		alert("matched");
+		
+		// deselect
+		div.childNodes[0].isSelected = false;
+		image.isSelected = false;
+		
+		// mark matched
+		div.childNodes[0].isMatched = true;
+		image.isMatched = true;
+	}
+	
+	function notMatched(div, image){
+		alert("not matched");
+		// deselect
+		div.childNodes[0].isSelected = false;
+		image.isSelected = false;
+		
+		// make transparent
+		div.className = "transparent";
+		image.parentNode.className = "transparent"
 	}
 
 </script>
