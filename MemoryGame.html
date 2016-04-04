@@ -2,10 +2,58 @@
 
 <head>
 
+<link rel="stylesheet" type="text/css" href="CSS\img.css">
+
 <script>
 
+	var IMAGE_PATH = "resources/boardImages/";
+	var NUMBER_OF_CARDS = 8;
+	var ROWS = 4;
+	var COLS = 4;
+	
+	var images = new Array(NUMBER_OF_CARDS*2);
+
 	function initialize(){
-		alert("initialized");
+		
+		// read in images into an array
+		for(var i = 0; i < NUMBER_OF_CARDS*2; i++){
+			var image = new Image();
+			image.id = "img" + i;
+			image.src = IMAGE_PATH + (i%8) + ".jpg";
+			images[i] = image;
+		}
+	
+		// shuffle the array of images
+		var currentIndex = images.length;
+		while (0 !== currentIndex) {
+			var randomIndex = Math.floor(Math.random() * currentIndex);
+			currentIndex -= 1;
+			var temp = images[currentIndex];
+			images[currentIndex] = images[randomIndex];
+			images[randomIndex] = temp;
+		}
+		
+		// deal the cards
+		// TODO animate the dealing process
+		var html = "";
+		for(var i = 0; i < ROWS; i++){
+			html += "<tr>";
+			for(var j = 0; j < COLS; j++){
+				html += "<td class='border'><div onclick='imageClicked(this);' id='div" + ((i*COLS)+j);
+				html += "' class='transparent'><img src='" + images[(i*COLS)+j].src;
+				html += "' height='100' width='100'></div></td>";
+			}
+			html += "</tr>"
+		}
+		document.getElementById("board").innerHTML = html;
+		//var div = document.getElementById("div0");
+		//div.className = "visible";
+	}
+	
+	// TODO animate the image flipping
+	// TODO flip the images if they do not match
+	function imageClicked(div){
+		div.className = "visible"
 	}
 
 </script>
@@ -13,6 +61,9 @@
 </head>
 
 <body onload="initialize();">
+
+<table id="board" align="center">
+</table>
 
 </body>
 
