@@ -70,7 +70,7 @@
 		
 		if(image != 0){
 			var child = div.childNodes;
-			if (image.src === child[0].src) {
+			if (image.src === child[0].src && image.id !== child[0].id) {
 				div.className = "visible";
 				matched(div, image);
 			}
