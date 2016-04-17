@@ -82,6 +82,9 @@
 					div.className = "visible";
 					matched(div, image);
 				}
+				else if (image.id === child[0].id) {
+					alert("You already selected this image.");
+				}
 				else {
 					div.className = "visible";
 					notMatched(div, image, 1);
