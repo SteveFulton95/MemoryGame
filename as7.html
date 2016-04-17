@@ -10,6 +10,7 @@
 	var NUMBER_OF_CARDS = 8;
 	var ROWS = 4;
 	var COLS = 4;
+	var stillAnimating = false;
 	
 	var images = new Array(NUMBER_OF_CARDS*2);
 
@@ -39,56 +40,62 @@
 		for(var i = 0; i < ROWS; i++){
 			html += "<tr>";
 			for(var j = 0; j < COLS; j++){
-				html += "<td class='border'><div onclick='imageClicked(this);' id='div" + ((i*COLS)+j);
-				html += "' class='transparent'><img id='" + i + j + "' src='" + images[(i*COLS)+j].src;
+				html += "<td onclick='imageClicked(this);' class='border'><div id='div" + ((i*COLS)+j);
+				html += "'><img id='" + i + j + "' src='" + images[(i*COLS)+j].src;
 				html += "' height='100' width='100' draggable='false'></div></td>";
 			}
 			html += "</tr>"
 		}
 		document.getElementById("board").innerHTML = html;
-		//var div = document.getElementById("div0");
-		//div.className = "visible";
+		
+		for (var i = 0; i < ROWS; i++) {
+			for (var j = 0; j < COLS; j++) {
+				var div = document.getElementById("div" + ((i*COLS)+j));
+				div.className = "transparent";
+			}
+		}
 	}
 	
 	// TODO animate the image flipping
 	// TODO flip the images if they do not match
-	function imageClicked(div){
-		// search if an image is selected
-		if(div.childNodes[0].isMatched){
-			alert("This image has already been matched with another. Please select another image.");
-			return;
-		}
-		
-		var image = 0;
-		for(var i = 0; i < ROWS; i++){
-			for(var j = 0; j < COLS; j++){
-				if(document.getElementById("" + i + j).isSelected){
-					image = document.getElementById("" + i + j);
+	function imageClicked(td){
+		if (!stillAnimating) {
+			div = td.childNodes[0];
+			// search if an image is selected
+			if(div.childNodes[0].isMatched){
+				alert("This image has already been matched with another. Please select another image.");
+				return;
+			}
+			
+			var image = 0;
+			for(var i = 0; i < ROWS; i++){
+				for(var j = 0; j < COLS; j++){
+					if(document.getElementById("" + i + j).isSelected){
+						image = document.getElementById("" + i + j);
+					}
 				}
 			}
-		}
-		
-		if(image != 0){
-			var child = div.childNodes;
-			if (image.src === child[0].src && image.id !== child[0].id) {
-				div.className = "visible";
-				matched(div, image);
+			
+			if(image != 0){
+				var child = div.childNodes;
+				if (image.src === child[0].src && image.id !== child[0].id) {
+					div.className = "visible";
+					matched(div, image);
+				}
+				else {
+					div.className = "visible";
+					notMatched(div, image, 1);
+				}
 			}
-			else {
+			else{
 				div.className = "visible";
-				notMatched(div, image);
+				var anImage = document.getElementById("" + div.childNodes[0].id);
+				anImage.isSelected = true;
 			}
-		}
-		else{
-			div.className = "visible";
-			var anImage = document.getElementById("" + div.childNodes[0].id);
-			anImage.isSelected = true;
 		}
 	}
 	
 	function matched(div, image){
-		alert("matched");
-		
 		// deselect
 		div.childNodes[0].isSelected = false;
 		image.isSelected = false;
@@ -98,15 +105,32 @@
 		image.isMatched = true;
 	}
 	
-	function notMatched(div, image){
-		alert("not matched");
-		// deselect
-		div.childNodes[0].isSelected = false;
-		image.isSelected = false;
+	function notMatched(div, image, count){
+		stillAnimating = true;
+		if (count === 0) {
+			// deselect
+			div.childNodes[0].isSelected = false;
+			image.isSelected = false;
 		
-		// make transparent
-		div.className = "transparent";
-		image.parentNode.className = "transparent"
+			// make transparent
+			div.className = "transparent";
+			image.parentNode.className = "transparent";
+			setStillAnimating(false, 1);
+		}
+		else {
+			count--;
+			setTimeout(function(){notMatched(div, image, count)}, 1000);
+		}
+	}
+	
+	function setStillAnimating(animating, count) {
+		if (count === 0) {
+			stillAnimating = animating
+		}
+		else {
+			count--;
+			setTimeout(function(){setStillAnimating(false, count)}, 1500);
+		}
 	}
 
 </script>
