@@ -1,15 +1,15 @@
 .transparent {
 	-webkit-transform: rotateY(90deg);
     transform: rotateY(90deg);
-	-webkit-transition: -webkit-transform 2s; /* Safari */
-    transition: transform 2s;
+	-webkit-transition: -webkit-transform 1s; /* Safari */
+    transition: transform 1s;
 }
 
 .visible {
 	-webkit-transform: rotateY(0deg);
     transform: rotateY(0deg);
-	-webkit-transition: -webkit-transform 2s; /* Safari */
-    transition: transform 2s;
+	-webkit-transition: -webkit-transform 1s; /* Safari */
+    transition: transform 1s;
 }
 
 .border {
