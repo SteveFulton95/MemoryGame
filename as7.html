@@ -175,7 +175,21 @@
 	
 	function startTimer(){
 		start = true;
-		setInterval(function(){ 
+		var scoreLoop = setInterval(function(){
+			var numMatched = 0;
+			for (var i = 0; i < ROWS; i++) {
+				for (var j = 0; j < COLS; j++) {
+					if (document.getElementById("" + ((i*COLS)+j)).isMatched) {
+						numMatched++;
+					}
+				}
+			}
+			
+			if (numMatched == NUMBER_OF_CARDS*2) {
+				window.clearInterval(scoreLoop);
+				alert("Winner winner chicken dinner!");
+			}
+			
 			score--;
 			document.getElementById("scoreboard").innerHTML = "Score: " + score;
 		}, 1000);
