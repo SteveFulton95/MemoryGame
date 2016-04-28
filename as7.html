@@ -42,9 +42,11 @@
 		for(var i = 0; i < ROWS; i++){
 			html += "<tr>";
 			for(var j = 0; j < COLS; j++){
-				html += "<td onclick='imageClicked(this);' class='border'><div id='div" + ((i*COLS)+j);
-				html += "'><img id='" + i + j + "' src='" + images[(i*COLS)+j].src;
-				html += "' height='100' width='100' draggable='false'></div></td>";
+				html += "<td onclick='imageClicked(this);' class='border'><div style='position: relative;' id='div" + ((i*COLS)+j);
+				html += "'><img id='" + ((i*COLS)+j) + "' src='" + images[(i*COLS)+j].src;
+				html += "' height='100' width='100' draggable='false' style='position: absolute;'/>";
+				html += " <img id='cardCover" + ((i*COLS)+j) + "' src='" + IMAGE_PATH + "7.jpg'";
+				html += "' height='100' width='100' draggable='false' styel='position absolute; top: 0px; left: 0px; z-index: 1;'/></div></td>";
 			}
 			html += "</tr>"
 		}
@@ -52,23 +54,28 @@
 		
 		for (var i = 0; i < ROWS; i++) {
 			for (var j = 0; j < COLS; j++) {
-				var div = document.getElementById("div" + ((i*COLS)+j));
-				div.className = "transparent";
+				var frontImg = document.getElementById("" + ((i*COLS)+j));
+				var backImg = document.getElementById("cardCover" + ((i*COLS)+j));
+				frontImg.className = "transparent-front";
+				backImg.className = "visible-back";
 			}
 		}
 	}
-	
-	// TODO animate the image flipping
-	// TODO flip the images if they do not match
+
 	function imageClicked(td){
 		if(start == false){
 			startTimer();
 		}
 		
 		if (!stillAnimating) {
-			div = td.childNodes[0];
+			// div containing the front and back of the card
+			var div = td.childNodes[0];
+			// front and back of the card
+			var frontImage = div.childNodes[0];
+			var backImage = div.childNodes[2];
+			
 			// search if an image is selected
-			if(div.childNodes[0].isMatched){
+			if(frontImage.isMatched){
 				alert("This image has already been matched with another. Please select another image.");
 				return;
 			}
@@ -76,61 +83,83 @@
 			var image = 0;
 			for(var i = 0; i < ROWS; i++){
 				for(var j = 0; j < COLS; j++){
-					if(document.getElementById("" + i + j).isSelected){
-						image = document.getElementById("" + i + j);
+					if(document.getElementById("" + ((i*COLS)+j)).isSelected){
+						image = document.getElementById("" + ((i*COLS)+j));
 					}
 				}
 			}
 			
 			if(image != 0){
-				var child = div.childNodes;
-				if (image.src === child[0].src && image.id !== child[0].id) {
-					div.className = "visible";
-					matched(div, image);
+				var div = image.parentNode;
+				if (image.src === frontImage.src && image.id !== frontImage.id) {
+					flipCardForward(frontImage, backImage, 1);
+					matched(frontImage, div);
 				}
-				else if (image.id === child[0].id) {
+				else if (image.id === frontImage.id) {
 					alert("You already selected this image.");
 				}
 				else {
-					div.className = "visible";
-					notMatched(div, image, 1);
+					flipCardForward(frontImage, backImage, 1);
+					notMatched(frontImage, backImage, div, 1);
 				}
 			}
 			else{
-				div.className = "visible";
-				var anImage = document.getElementById("" + div.childNodes[0].id);
-				anImage.isSelected = true;
+				flipCardForward(frontImage, backImage, 1);
+				frontImage.isSelected = true;
 			}
 		}
 	}
 	
-	function matched(div, image){
-		// deselect
-		div.childNodes[0].isSelected = false;
-		image.isSelected = false;
-		
-		// mark matched
-		div.childNodes[0].isMatched = true;
-		image.isMatched = true;
+	function flipCardForward(front, back, seconds) {
+		if (seconds == 0) {
+			front.className = "visible-front";
+		} else {
+			back.className = "transparent-back";
+			seconds--;
+			setTimeout(function(){flipCardForward(front, back, seconds)}, 500);
+		}
 	}
 	
-	function notMatched(div, image, count){
+	function flipCardBackward(front, back, seconds) {
+		if (seconds == 0) {
+			back.className = "visible-back";
+		} else {
+			front.className = "transparent-front";
+			seconds--;
+			setTimeout(function(){flipCardBackward(front, back, seconds)}, 500);
+		}
+	}
+	
+	function matched(frontImage, div){
+		var otherImage = div.childNodes[0];
+		// deselect
+		frontImage.isSelected = false;
+		otherImage.isSelected = false;
+		
+		// mark matched
+		frontImage.isMatched = true;
+		otherImage.isMatched = true;
+	}
+	
+	function notMatched(frontImage, backImage, div, count){
 		stillAnimating = true;
 		if (count === 0) {
+			var otherImageFront = div.childNodes[0];
+			var otherImageBack = div.childNodes[2];
+			
 			// deselect
-			div.childNodes[0].isSelected = false;
-			image.isSelected = false;
+			frontImage.isSelected = false;
+			otherImageFront.isSelected = false;
 		
 			// make transparent
-			div.className = "transparent";
-			image.parentNode.className = "transparent";
+			flipCardBackward(frontImage, backImage, 1);
+			flipCardBackward(otherImageFront, otherImageBack, 1);
 			setStillAnimating(false, 1);
-			
 			score -= 50;
 		}
 		else {
 			count--;
-			setTimeout(function(){notMatched(div, image, count)}, 1000);
+			setTimeout(function(){notMatched(frontImage, backImage, div, count)}, 1000);
 		}
 	}
 	
@@ -160,7 +189,7 @@
 
 <center><a href="Description.html">DESCRIPTION</a></center>
 
-<br><br><p id = "scoreboard" align = "center"></p><br>
+<br><br><p id = "scoreboard" align = "center">Score: 10000</p><br>
 
 <table id="board" align="center">
 </table>
